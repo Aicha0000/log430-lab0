@@ -22,7 +22,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
+        pip install pytest pylint
+    
+    - name: Run linter
+      run: |
+        pylint app/ tests/
 
     - name: Run tests
       run: pytest
+
+  
