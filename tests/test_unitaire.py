@@ -6,7 +6,9 @@ import sys
 from app.main import main, get_random_message
 
 class TestMain(unittest.TestCase):
+    """Unit tests for main.py."""
     def test_hey_output(self):
+        """Test if the first line of output is 'Hey you!'."""
         original_stdout = sys.stdout
         sys.stdout = io.StringIO()
         try:
@@ -17,6 +19,7 @@ class TestMain(unittest.TestCase):
             sys.stdout = original_stdout
 
     def test_random_message_output(self):
+        """Test if the random message is one of the expected messages."""
         messages = [
             "Keep it up :)",
             "You got this :)",
@@ -25,8 +28,3 @@ class TestMain(unittest.TestCase):
         ]
         result = get_random_message()
         self.assertIn(result, messages)
-
-
-
-
-

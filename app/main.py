@@ -1,8 +1,6 @@
 """Main script that prints messages de motivations."""
 
 import random
-import io
-import sys
 
 
 def get_random_message():
@@ -24,4 +22,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
