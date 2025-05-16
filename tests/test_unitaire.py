@@ -28,3 +28,4 @@ class TestMain(unittest.TestCase):
         ]
         result = get_random_message()
         self.assertIn(result, messages)
+        
