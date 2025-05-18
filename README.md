@@ -7,7 +7,7 @@ Ce laboratoire est une application minimaliste en Python avec deux tests unitair
 ├── .github/workflows   # Définitions des workflows GitHub Actions
 │   ├── main.yml        # Pipeline CI principal
 │   └── ci.yml          # Configurations CI supplémentaires
-├── app/                # Code source de l'application
+├── app/                # Le Code source
 │   ├── __init__.py     
 │   └── main.py         # Module principal de l'application
 ├── tests/              # Suite de tests
@@ -17,7 +17,7 @@ Ce laboratoire est une application minimaliste en Python avec deux tests unitair
 ├── .dockerignore       # Fichiers à exclure du contexte Docker
 ├── .gitignore          # Fichiers à exclure de Git
 ├── Dockerfile          # Définition de l'image Docker
-└── README.md           # Ce fichier
+└── README.md           
 ## Prérequis
 - Git
 - Docker et Docker Compose
