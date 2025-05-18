@@ -1,0 +1,22 @@
+# Environnements virtuels
+venv/
+.venv/
+
+# Fichiers temporaires et cache Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Logs et fichiers temporaires
+*.log
+*.pid
+
+# Éditeurs et IDE
+.vscode/
+.idea/
+
+# Système
+.DS_Store
+
+# Docker
+*.tar
