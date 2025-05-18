@@ -35,6 +35,15 @@ Ce laboratoire est une application minimaliste en Python avec deux tests unitair
 - GitHub Actions
 - Docker Hub
 
+## Choix techniques
+
+- __Python 3.11__: Choisi pour sa stabilité et son développement rapide d'applications
+- __Pytest__: Sélectionné pour sa simplicité d'utilisation
+- __Pylint__: Utilisé pour maintenir un code propre et conforme aux standards de Python
+- __Docker__: Implémenté pour assurer la portabilité de l'environnement de développement
+- __GitHub Actions__: Choisi pour son intégration native avec GitHub et sa facilité de configuration
+- __Docker Hub__: Utilisé comme registre public pour stocker l'image Docker
+
 ## Image Docker
 
 L’image Docker est automatiquement construite et poussée sur Docker Hub à chaque mise à jour de la branche `main`.
