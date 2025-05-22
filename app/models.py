@@ -1,21 +1,19 @@
-""" 
-Ce Modules definit les entites du systeme de caisse
-"""
+"""Ce module définit les entités du système de caisse."""
 
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
-# pylint: disable=too-few-public-methods
-class Produit(Base):
-    """ 
-    Classe qui represente un produit 
-    Mes attributs sont:
-    id = Identifiant unique du produit
-    nom = nom du produit
-    prix = Prix unitaire du produit
-    description = Categorie du produit
-      """
+
+class Produit(Base):  # pylint: disable=too-few-public-methods
+    """Classe qui représente un produit.
+    
+    Attributs:
+        id: Identifiant unique du produit
+        nom: Nom du produit
+        prix: Prix unitaire du produit
+        description: Catégorie du produit
+    """
 
     __tablename__ = 'produits'
 
@@ -25,5 +23,7 @@ class Produit(Base):
     description = Column(String(100), nullable=True)
 
     def __repr__(self):
-        return (f"<Produit(id={self.id}, nom='{self.nom}', prix={self.prix}, "
-                f"description='{self.description}')>")
+        """Représentation string du produit pour le débogage."""
+        return (f"<Produit(id={self.id}, nom='{self.nom}', "
+                f"prix={self.prix}, description='{self.description}')>")
+    
