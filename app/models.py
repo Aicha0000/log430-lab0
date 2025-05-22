@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
-
+# pylint: disable=too-few-public-methods
 class Produit(Base):
     """ 
     Classe qui represente un produit 
@@ -25,4 +25,5 @@ class Produit(Base):
     description = Column(String(100), nullable=True)
 
     def __repr__(self):
-        return f"<Produit(id={self.id}, nom='{self.nom}', prix={self.prix}, description='{self.description}')>"
+        return (f"<Produit(id={self.id}, nom='{self.nom}', prix={self.prix}, "
+                f"description='{self.description}')>")
