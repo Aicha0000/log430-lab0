@@ -17,7 +17,7 @@ def ajouter_produit():
     """Demande les infos d’un produit et l’ajoute à la base."""
     nom = input("Entrez le nom du produit : ")
     prix = float(input("Prix: "))
-    description = input("Description: ") 
+    description = input("Description: ")
     produit = Produit(nom=nom, prix=prix, description=description)
     session.add(produit)
     session.commit()
