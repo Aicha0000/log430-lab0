@@ -18,7 +18,6 @@ def ajouter_produit():
     nom = input("Entrez le nom du produit : ")
     prix = float(input("Prix: "))
     description = input("Description: ") 
-
     produit = Produit(nom=nom, prix=prix, description=description)
     session.add(produit)
     session.commit()
