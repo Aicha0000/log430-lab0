@@ -1,23 +1,33 @@
-# LOG430 - labo 0: Pipeline CI avec Docker et Github Actions
+# LOG430 - labo 1: Architecture Client-Serveur 2-Tiers
 
-Ce laboratoire est une application minimaliste en Python avec deux tests unitaires, une analyse de code et une conteneurisation Docker. Il inclut un pipeline CI/CD complet utilisant GitHub Actions qui exécute des tests, valide la qualité du code, et construit et pousse une image Docker vers Docker Hub.
+Ce laboratoire met en œuvre une architecture client-serveur à deux tiers en Python. Il propose une application console permettant à un employé du magasin de gérer les produits, enregistrer des ventes, gérer les retours, et consulter l’état du stock via une base de données persistante (SQLite) à travers SQLAlchemy.
+
+## Fonctionnalités de l'application console
+
+- Ajouter un produit
+- Afficher les produits avec alerte de stock
+- Rechercher un produit (par ID ou nom)
+- Enregistrer une vente (avec gestion des transactions et mise à jour du stock)
+- Gérer les retours (annulation de vente avec restauration du stock)
+- Vérifier la cohérence des stocks automatiquement
+
+## Architecture
+
+- **Client**: Application console Python
+- **Serveur**: Base de données SQLite (persistence locale simulant le serveur)
+- **ORM**: SQLAlchemy
+- **Tests et Qualité**: Pytest, Pylint
+- **CI/CD**: GitHub Actions
 
 ## Structure du laboratoire
 
-.
-├── .github/workflows   # Définitions des workflows GitHub Actions
-│   ├── main.yml        # Pipeline CI principal
-│   └── ci.yml          # Configurations CI supplémentaires
-├── app/                # Le Code source
-│   ├── __init__.py
-│   └── main.py         # Module principal de l'application
-├── tests/              # Suite de tests
-│   ├── __init__.py
-│   └── test_unitaire.py # Tests unitaires
-├── docker-compose.yml  # Configuration Docker Compose
-├── .dockerignore       # Fichiers à exclure du contexte Docker
-├── .gitignore          # Fichiers à exclure de Git
-├── Dockerfile          # Définition de l'image Docker
+├── app/
+│ ├── console.py # Interface console principale
+│ ├── models.py # Modèles ORM (Produit, Vente, LigneVente)
+│ └── persistance/
+│ └── db.py # Connexion à la BD et session
+├── tests/ # Tests unitaires
+├── .github/workflows/ # Pipeline CI GitHub Actions
 └── README.md
 
 ## Prérequis
@@ -49,7 +59,7 @@ Ce laboratoire est une application minimaliste en Python avec deux tests unitair
 L’image Docker est automatiquement construite et poussée sur Docker Hub à chaque mise à jour de la branche `main`.
 
 __Lien Docker Hub :__  
-[`aicha0000/log430-lab0`](https://hub.docker.com/repository/docker/aicha0000/log430-lab0)
+[`aicha0000/log430-lab1`](https://hub.docker.com/repository/docker/aicha0000/log430-lab1)
 
 ## Développement local: Configuration de l'environnement
 
@@ -62,6 +72,15 @@ source venv/bin/activate
 3. Installer les dépendances
 pip install -r requirements.txt
 
+## Fichier `requirements.txt`
+
+Le fichier contient les dépendances suivantes utilisées dans le projet :
+greenlet==3.2.2
+SQLAlchemy==2.0.41
+typing_extensions==4.13.2
+pytest==7.4.0
+pylint==3.0.0
+
 ## Exécution des Tests
 
 pytest
@@ -72,7 +91,7 @@ pylint app/ tests/
 
 ## Exécution de Docker
 
-docker run aicha0000/log430-lab0
+docker run aicha0000/log430-lab1
 
 ## Pipeline CI/CD
 
