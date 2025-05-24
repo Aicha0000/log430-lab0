@@ -1,11 +1,13 @@
 """
-Application console pour la gestion d’un système de caisse : produits, ventes, retours et stock.
+Application console pour la gestion d'un système de caisse : produits, ventes, retours et stock.
 """
 
 from app.models import Produit, Vente, LigneVente
 from app.persistance.db import session
 
+
 def afficher_console_menu():
+    """Affiche le menu principal de l'application."""
     print("Bienvenue dans le Menu Caisse")
     print("1. Ajouter un produit")
     print("2. Afficher les produits")
@@ -16,6 +18,7 @@ def afficher_console_menu():
 
 
 def afficher_statut_stock(produit):
+    """Affiche le statut du stock d'un produit donné."""
     if produit.stock == 0:
         print(f"Produit '{produit.nom}' est en rupture.")
     elif produit.stock < 2:
@@ -25,6 +28,7 @@ def afficher_statut_stock(produit):
 
 
 def verifier_coherence_stock(verbose=True):
+    """Vérifie la cohérence des stocks et retourne True si tout est correct."""
     erreurs = False
     produits_negatifs = session.query(Produit).filter(Produit.stock < 0).all()
     if produits_negatifs:
@@ -38,6 +42,7 @@ def verifier_coherence_stock(verbose=True):
 
 
 def ajouter_produit():
+    """Ajoute un nouveau produit à la base de données."""
     try:
         nom = input("Nom du produit: ")
         prix = float(input("Prix: "))
@@ -55,18 +60,21 @@ def ajouter_produit():
 
 
 def afficher_produits():
+    """Affiche tous les produits avec leur statut de stock."""
     produits = session.query(Produit).all()
     if not produits:
         print("Aucun produit disponible.")
         return
     print("\nListe des produits:")
     for p in produits:
-        print(f"ID: {p.id}, Nom: {p.nom}, Prix: {p.prix}, Desc: {p.description}, Stock: {p.stock}")
+        print(f"ID: {p.id}, Nom: {p.nom}, Prix: {p.prix}, "
+              f"Desc: {p.description}, Stock: {p.stock}")
         afficher_statut_stock(p)
     verifier_coherence_stock(verbose=False)
 
 
 def rechercher_produit():
+    """Recherche un produit par ID ou par nom."""
     print("\nRecherche de produit:")
     print("1. Par ID\n2. Par nom")
     choix = input("Choix: ")
@@ -89,6 +97,7 @@ def rechercher_produit():
 
 
 def enregistrer_vente():
+    """Enregistre une nouvelle vente avec gestion des transactions."""
     print("\nEnregistrement de vente")
     if not verifier_coherence_stock():
         if input("Continuer malgré incohérences? (oui/non): ").lower() != 'oui':
@@ -104,7 +113,9 @@ def enregistrer_vente():
             if pid.lower() == 'fin':
                 break
             try:
-                produit = session.query(Produit).filter(Produit.id == int(pid)).with_for_update().first()
+                produit = session.query(Produit).filter(
+                    Produit.id == int(pid)
+                ).with_for_update().first()
                 if not produit or produit.stock == 0:
                     print("Produit invalide ou en rupture.")
                     continue
@@ -113,7 +124,12 @@ def enregistrer_vente():
                     print("Quantité invalide ou stock insuffisant.")
                     continue
                 produit.stock -= qty
-                session.add(LigneVente(vente_id=vente.id, produit_id=produit.id, quantite=qty, prix_unitaire=produit.prix))
+                session.add(LigneVente(
+                    vente_id=vente.id,
+                    produit_id=produit.id,
+                    quantite=qty,
+                    prix_unitaire=produit.prix
+                ))
                 total += qty * produit.prix
             except ValueError:
                 print("Entrée invalide.")
@@ -124,12 +140,13 @@ def enregistrer_vente():
         else:
             transaction.rollback()
             print("Vente annulée.")
-    except Exception as e:
+    except (ValueError, AttributeError) as e:
         transaction.rollback()
         print(f"Erreur: {e}")
 
 
 def gerer_retours():
+    """Gère les retours et annulations de vente."""
     print("\nRetour et Annulation de vente")
     ventes = session.query(Vente).filter(Vente.statut == 'active').all()
     if not ventes:
@@ -139,26 +156,32 @@ def gerer_retours():
         print(f"Vente {v.id} - Total: {v.total} $")
     try:
         vid = int(input("ID vente à annuler: "))
-        vente = session.query(Vente).filter(Vente.id == vid, Vente.statut == 'active').with_for_update().first()
+        vente = session.query(Vente).filter(
+            Vente.id == vid,
+            Vente.statut == 'active'
+        ).with_for_update().first()
         if not vente:
             print("Vente invalide ou déjà annulée.")
             return
         if input("Confirmer annulation ? (oui/non): ").lower() != 'oui':
             return
         for l in vente.lignes:
-            p = session.query(Produit).filter(Produit.id == l.produit_id).with_for_update().first()
+            p = session.query(Produit).filter(
+                Produit.id == l.produit_id
+            ).with_for_update().first()
             p.stock += l.quantite
         vente.statut = 'annulee'
         session.commit()
         print(f"Vente {vente.id} annulée.")
     except ValueError:
         print("Entrée invalide.")
-    except Exception as e:
+    except (AttributeError, TypeError) as e:
         session.rollback()
         print(f"Erreur: {e}")
 
 
 def main():
+    """Point d'entrée principal de l'application."""
     print("\nVérification initiale du stock...")
     verifier_coherence_stock()
     while True:
@@ -180,6 +203,6 @@ def main():
         else:
             print("Choix invalide.")
 
+
 if __name__ == "__main__":
     main()
-
