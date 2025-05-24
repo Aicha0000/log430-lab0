@@ -1,7 +1,6 @@
 """
 Tests unitaires pour le système de caisse.
 """
-import pytest
 from app.models import Produit, Vente, LigneVente
 from app.persistance.db import session
 
