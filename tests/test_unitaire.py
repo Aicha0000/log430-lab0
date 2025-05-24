@@ -1,31 +1,36 @@
-"""Unit tests for main module."""
+"""
+Tests unitaires pour le système de caisse.
+"""
+import pytest
+from app.models import Produit, Vente, LigneVente
+from app.persistance.db import session
 
-import unittest
-import io
-import sys
-from app.main import main, get_random_message
 
-class TestMain(unittest.TestCase):
-    """Unit tests for main.py."""
-    def test_hey_output(self):
-        """Test if the first line of output is 'Hey you!'."""
-        original_stdout = sys.stdout
-        sys.stdout = io.StringIO()
-        try:
-            main()
-            output = sys.stdout.getvalue().strip().split('\n')[0]
-            self.assertEqual(output, "Hey you!")
-        finally:
-            sys.stdout = original_stdout
+def test_produit_creation():
+    """Test la création d'un produit."""
+    produit = Produit(nom="Test Produit", prix=7.99, description="Test", stock=3)
+    assert produit.nom == "Test Produit"
+    assert produit.prix == 7.99
+    assert produit.stock == 3
 
-    def test_random_message_output(self):
-        """Test if the random message is one of the expected messages."""
-        messages = [
-            "Keep it up :)",
-            "You got this :)",
-            "You're almost at the finish line :)",
-            "It will be okay :)"
-        ]
-        result = get_random_message()
-        self.assertIn(result, messages)
+
+def test_vente_creation():
+    """Test la création d'une vente."""
+    vente = Vente(total=21.50)
+    assert vente.total == 21.50
+    assert vente.statut == 'active'
+
+
+def test_ligne_vente_creation():
+    """Test la création d'une ligne de vente."""
+    ligne = LigneVente(vente_id=1, produit_id=1, quantite=2, prix_unitaire=7.99)
+    assert ligne.quantite == 2
+    assert ligne.prix_unitaire == 7.99
+
+
+def test_database_connection():
+    """Test la connexion à la base de données."""
+    # Test simple de connexion
+    produits = session.query(Produit).all()
+    assert isinstance(produits, list)
         
