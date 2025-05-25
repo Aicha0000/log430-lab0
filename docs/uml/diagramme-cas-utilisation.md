@@ -4,6 +4,7 @@ Acteurs:
 - Employé du magasin: Utilisateur principal du système de caisse
 
 # Cas d'utilisation principaux:
+
 1. Rechercher un produit
 - Par ID ou nom de produit
 - Consulter stock disponible
@@ -21,5 +22,6 @@ Acteurs:
 - Nouveau produit avec stock initial
 
 # Contraintes
+
 - support de 3 caisses simultanés
 - Interface console simple
