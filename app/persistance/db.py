@@ -6,8 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.models import Base
 
-#Connexion a la base de donnees SQLite
-engine = create_engine("sqlite:///bd.sqlite", echo=True)
+#Connexion a la base de donnees SQLite - en mémoire pour les tests
+engine = create_engine("sqlite:///:memory:", echo=True)
 
 #Creation de la base de donnees dans app.models
 Base.metadata.create_all(engine)

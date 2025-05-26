@@ -1,14 +1,10 @@
 version: "3.8"
 services:
-  app:
+  caisse:
     build: .
     command: python -m app.console
-    volumes:
-      - ./bd.sqlite:/app/bd.sqlite
     stdin_open: true
     tty: true
     environment:
       - PYTHONUNBUFFERED=1
-  tests:
-    build: .
-    command: pytest
+      
