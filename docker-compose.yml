@@ -7,4 +7,6 @@ services:
     tty: true
     environment:
       - PYTHONUNBUFFERED=1
-      
+      - PYTHONIOENCODING=utf-8
+
+    init: true
