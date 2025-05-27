@@ -102,13 +102,13 @@ def enregistrer_vente():
     if not verifier_coherence_stock():
         if input("Continuer malgré incohérences? (oui/non): ").lower() != 'oui':
             return
-    
+
     try:
         vente = Vente(total=0.0)
         session.add(vente)
-        session.flush()  # Get the vente ID
+        session.flush()
         total = 0.0
-        
+
         while True:
             pid = input("ID produit (ou 'fin'): ")
             if pid.lower() == 'fin':
@@ -122,8 +122,7 @@ def enregistrer_vente():
                 if qty <= 0 or qty > produit.stock:
                     print("Quantité invalide ou stock insuffisant.")
                     continue
-                    
-                # Update stock and add line
+
                 produit.stock -= qty
                 session.add(LigneVente(
                     vente_id=vente.id,
@@ -133,10 +132,10 @@ def enregistrer_vente():
                 ))
                 total += qty * produit.prix
                 print(f"Ajouté: {qty}x {produit.nom} = {qty * produit.prix}$")
-                
+
             except ValueError:
                 print("Entrée invalide.")
-        
+
         if total > 0:
             vente.total = total
             session.commit()
@@ -144,8 +143,8 @@ def enregistrer_vente():
         else:
             session.rollback()
             print("Vente annulée.")
-            
-    except Exception as e:
+
+    except (ValueError, AttributeError, TypeError) as e:
         session.rollback()
         print(f"Erreur: {e}")
 
