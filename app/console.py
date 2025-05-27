@@ -102,20 +102,19 @@ def enregistrer_vente():
     if not verifier_coherence_stock():
         if input("Continuer malgré incohérences? (oui/non): ").lower() != 'oui':
             return
-    transaction = session.begin()
+    
     try:
         vente = Vente(total=0.0)
         session.add(vente)
-        session.flush()
+        session.flush()  # Get the vente ID
         total = 0.0
+        
         while True:
             pid = input("ID produit (ou 'fin'): ")
             if pid.lower() == 'fin':
                 break
             try:
-                produit = session.query(Produit).filter(
-                    Produit.id == int(pid)
-                ).with_for_update().first()
+                produit = session.query(Produit).filter(Produit.id == int(pid)).first()
                 if not produit or produit.stock == 0:
                     print("Produit invalide ou en rupture.")
                     continue
@@ -123,6 +122,8 @@ def enregistrer_vente():
                 if qty <= 0 or qty > produit.stock:
                     print("Quantité invalide ou stock insuffisant.")
                     continue
+                    
+                # Update stock and add line
                 produit.stock -= qty
                 session.add(LigneVente(
                     vente_id=vente.id,
@@ -131,17 +132,21 @@ def enregistrer_vente():
                     prix_unitaire=produit.prix
                 ))
                 total += qty * produit.prix
+                print(f"Ajouté: {qty}x {produit.nom} = {qty * produit.prix}$")
+                
             except ValueError:
                 print("Entrée invalide.")
+        
         if total > 0:
             vente.total = total
-            transaction.commit()
-            print(f"Vente enregistrée. Total: {total} $")
+            session.commit()
+            print(f"Vente enregistrée. Total: {total}$")
         else:
-            transaction.rollback()
+            session.rollback()
             print("Vente annulée.")
-    except (ValueError, AttributeError) as e:
-        transaction.rollback()
+            
+    except Exception as e:
+        session.rollback()
         print(f"Erreur: {e}")
 
 
