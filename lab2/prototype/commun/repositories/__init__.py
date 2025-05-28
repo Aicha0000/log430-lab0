@@ -1,0 +1,1 @@
+# Interfaces Repository Pattern pour l'architecture stratifiée

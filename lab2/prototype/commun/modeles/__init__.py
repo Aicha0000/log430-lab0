@@ -1,0 +1,1 @@
+# Modèles métier partagés pour l'architecture multi-magasins
