@@ -1,6 +1,6 @@
 # LOG430 - labo 1: Architecture Client-Serveur 2-Tiers
 
-Ce laboratoire met en œuvre une architecture client-serveur à deux tiers en Python. Il propose une application console permettant à un employé du magasin de gérer les produits, enregistrer des ventes, gérer les retours, et consulter l’état du stock via une base de données persistante (SQLite) à travers SQLAlchemy.
+Ce laboratoire met en œuvre une architecture client-serveur à deux tiers en Python. Il propose une application console permettant à un employé du magasin de gérer les produits, enregistrer des ventes, gérer les retours, et consulter l'état du stock via une base de données persistante (SQLite) à travers SQLAlchemy.
 
 ## Fonctionnalités de l'application console
 
@@ -56,7 +56,7 @@ Ce laboratoire met en œuvre une architecture client-serveur à deux tiers en Py
 
 ## Image Docker
 
-L’image Docker est automatiquement construite et poussée sur Docker Hub à chaque mise à jour de la branche `main`.
+L'image Docker est automatiquement construite et poussée sur Docker Hub à chaque mise à jour de la branche `main`.
 
 __Lien Docker Hub :__  
 [`aicha0000/log430-lab1`](https://hub.docker.com/repository/docker/aicha0000/log430-lab1)
