@@ -1,5 +1,5 @@
 ## Diagramme de cas d'utilisation
-```` ```mermaid ````
+```` mermaid 
 graph TB
     Employee[Employé du magasin]
     
@@ -16,7 +16,7 @@ graph TB
     Employee --> UC3
     Employee --> UC4
     Employee --> UC5
-   ```` ``` ```` 
+   ```` 
 # Cas d'utilisation
 
 Acteurs:
