@@ -1,3 +1,22 @@
+## Diagramme de cas d'utilisation
+```` ```mermaid ````
+graph TB
+    Employee[Employé du magasin]
+    
+    subgraph "Système de caisse POS"
+        UC1[Rechercher un produit]
+        UC2[Enregistrer une vente]
+        UC3[Gérer les retours]
+        UC4[Consulter l'état du stock]
+        UC5[Ajouter un produit]
+    end
+    
+    Employee --> UC1
+    Employee --> UC2
+    Employee --> UC3
+    Employee --> UC4
+    Employee --> UC5
+   ```` ``` ```` 
 # Cas d'utilisation
 
 Acteurs:
