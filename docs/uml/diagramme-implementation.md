@@ -1,5 +1,55 @@
 # Diagramme d'implémentation
-
+```` mermaid 
+graph TB
+    subgraph "Structure du Laboratoire 1"
+        subgraph "app/"
+            Console[console.py<br/>Interface console et menus]
+            Models[models.py<br/>Règles de gestion des stocks]
+            
+            subgraph "persistance/"
+                DB[db.py<br/>Configuration SQLAlchemy<br/>Session de base de données]
+            end
+        end
+    end
+    
+    subgraph "Couches Logicielles"
+        subgraph "Couche Présentation"
+            CP[app/console.py]
+        end
+        
+        subgraph "Couche Logique Métier" 
+            CLM[app/models.py]
+        end
+        
+        subgraph "Couche Persistance"
+            CPers[app/persistance/db.py]
+        end
+    end
+    
+    subgraph "Technologies"
+        Python[Python 3.11]
+        SQLAlchemy[SQLAlchemy 2.0+]
+        SQLite[SQLite]
+        Pytest[pytest]
+        Pylint[pylint]
+        Docker[Docker]
+    end
+    
+    %% Dépendances:
+    Console --> Models
+    Models --> DB
+    
+    %% Relations avec les couches:
+    CP -.-> Console
+    CLM -.-> Models
+    CPers -.-> DB
+    
+    %% Technologies utilisées:
+    Console -.-> Python
+    Models -.-> SQLAlchemy
+    DB -.-> SQLite
+    Python -.-> Docker
+ ```` 
 # Structure du Laboratoire 1
 
 app/
