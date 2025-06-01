@@ -1,6 +1,6 @@
 # Class Diagram
 
-@startuml
+```` mermaid 
 
 class Produit {
     +id: Integer
@@ -25,4 +25,6 @@ class LigneVente {
     +prix_unitaire: Float
 }
 
-@enduml
+    Vente "1" --> "*" LigneVente : contient
+    LigneVente "*" --> "1" Produit : référence
+```` 
