@@ -1,0 +1,84 @@
+name: Lab 2 CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - lab2
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: lab2_db
+          POSTGRES_USER: lab2_user
+          POSTGRES_PASSWORD: lab2_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Wait for PostgreSQL
+      run: |
+        until pg_isready -h localhost -p 5432 -U lab2_user; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+
+    - name: Run unit tests
+      run: python -m pytest tests/test_unitaires.py -v
+      env:
+        DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
+
+    - name: Run integration tests
+      run: python -m pytest tests/test_integration.py -v
+      env:
+        DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
+
+    - name: Run end-to-end tests
+      run: python -m pytest tests/test_e2e.py -v
+      env:
+        DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
+
+    - name: Run all tests together
+      run: python -m pytest tests/ -v
+      env:
+        DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t lab2-test .
+
+    - name: Test Docker build
+      run: echo "Docker build successful"

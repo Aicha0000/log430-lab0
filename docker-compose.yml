@@ -1,0 +1,38 @@
+services:
+  # Base de données PostgreSQL 
+  postgres:
+    image: postgres:15
+    container_name: lab2_postgres
+    environment:
+      POSTGRES_DB: lab2_db
+      POSTGRES_USER: lab2_user
+      POSTGRES_PASSWORD: lab2_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab2_user -d lab2_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Application FastAPI
+  api:
+    build: .
+    container_name: lab2_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://lab2_user:lab2_password@postgres:5432/lab2_db
+      - EXTERNAL_WEBHOOK_URL=${EXTERNAL_WEBHOOK_URL:-https://webhook.site/unique-id-here}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: uvicorn production.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:
