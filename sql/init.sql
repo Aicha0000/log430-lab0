@@ -105,5 +105,5 @@ CREATE TRIGGER update_product_timestamp_trigger
     EXECUTE FUNCTION update_product_timestamp();
 
 -- Accorde les permissions
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO lab2_user;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO lab2_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO lab3_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO lab3_user;

@@ -1,5 +1,6 @@
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Depends, status
+from fastapi.security import HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import Dict, Any
@@ -14,6 +15,18 @@ from commun.repositories.instances import rapports_service, gestion_stocks, reap
 from services.administration.tableau_bord import tableau_bord_service
 
 app = FastAPI(title="Lab 2 API", version="1.0")
+#configurer le token de sécurité
+security = HTTPBearer()
+STATIC_TOKEN = "lab3-token"
+
+def verify_token(token: str = Depends(security)):
+    if token.credentials != STATIC_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token d'accès invalide",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return token
 
 app.add_middleware(
     CORSMiddleware,
@@ -181,7 +194,7 @@ async def get_all_products():
     }
 
 @app.put("/api/produits/{product_id}")
-async def update_product(product_id: str, update_data: Dict[str, Any], background_tasks: BackgroundTasks):
+async def update_product(product_id: str, update_data: Dict[str, Any], background_tasks: BackgroundTasks, token: str = Depends(verify_token)):
     success = produits_service.modifier_produit(
         product_id,
         update_data.get("name"),
@@ -226,6 +239,7 @@ async def approve_replenishment(request_id: str, background_tasks: BackgroundTas
             send_external_webhook,
             "reapprovisionnement fait",
             {"request_id": request_id, "timestamp": datetime.now().isoformat()}
+            
         )
         return {"message": "reapprovisionnement fait", "id demande": request_id}
     else:
