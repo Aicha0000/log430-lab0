@@ -1,9 +1,39 @@
-version: "3.8"
 services:
-  app:
-    build: .
-    command: python app/main.py
+  # Base de données PostgreSQL 
+  postgres:
+    image: postgres:15
+    container_name: lab3_postgres
+    environment:
+      POSTGRES_DB: lab3_db
+      POSTGRES_USER: lab3_user
+      POSTGRES_PASSWORD: lab3_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lab3_user -d lab3_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  tests:
+  # Application FastAPI
+  api:
     build: .
-    command: pytest
+    container_name: lab3_api
+    image: aicha0000/log430-lab3:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://lab3_user:lab3_password@postgres:5432/lab3_db
+      - EXTERNAL_WEBHOOK_URL=${EXTERNAL_WEBHOOK_URL:-https://webhook.site/unique-id-here}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    command: uvicorn production.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  postgres_data:

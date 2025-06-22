@@ -1,90 +1,145 @@
-# LOG430 - labo 0: Pipeline CI avec Docker et Github Actions
+# LOG430 - Lab 2: Architecture Multi-Magasins avec Repository Pattern
 
-Ce laboratoire est une application minimaliste en Python avec deux tests unitaires, une analyse de code et une conteneurisation Docker. Il inclut un pipeline CI/CD complet utilisant GitHub Actions qui exécute des tests, valide la qualité du code, et construit et pousse une image Docker vers Docker Hub.
+## Démarrage rapide
 
-## Structure du laboratoire
+```bash
+# Démarrer l'application
+docker run -d --name lab2-postgres -e POSTGRES_DB=lab2_db -e POSTGRES_USER=lab2_user -e POSTGRES_PASSWORD=lab2_password -p 5432:5432 postgres:15
+docker run -d --name lab2-app --link lab2-postgres:postgres -p 8000:8000 -e DATABASE_URL="postgresql://lab2_user:lab2_password@postgres:5432/lab2_db" aicha0000/log430-lab2:latest
 
-.
-├── .github/workflows   # Définitions des workflows GitHub Actions
-│   ├── main.yml        # Pipeline CI principal
-│   └── ci.yml          # Configurations CI supplémentaires
-├── app/                # Le Code source
-│   ├── __init__.py
-│   └── main.py         # Module principal de l'application
-├── tests/              # Suite de tests
-│   ├── __init__.py
-│   └── test_unitaire.py # Tests unitaires
-├── docker-compose.yml  # Configuration Docker Compose
-├── .dockerignore       # Fichiers à exclure du contexte Docker
-├── .gitignore          # Fichiers à exclure de Git
-├── Dockerfile          # Définition de l'image Docker
-└── README.md
+# Vérifier le fonctionnement
+curl http://localhost:8000/health
+open http://localhost:8000/web
+
+# Exécuter les tests
+docker exec lab2-app python3 -m pytest tests/ -v
+```
+
+## Description
+
+Système de gestion pour 5 magasins avec centre logistique et maison mère. Evolution du Lab 1 vers une architecture utilisant le pattern Repository avec PostgreSQL.
+
+## Fonctionnalités
+
+- UC1: Rapports consolidés des ventes
+- UC2: Consultation stock central et réapprovisionnement
+- UC3: Tableau de bord des performances
+- UC4: Mise à jour des produits
+- UC6: Traitement des demandes de réapprovisionnement
+- UC7: Alertes automatiques via webhooks
+- UC8: Interface web avec API REST
+
+## Architecture
+
+- Interface: Consoles utilisateur spécialisées
+- Service: Couche logique métier
+- Repository: Abstraction d'accès aux données
+- Database: PostgreSQL
+- API: FastAPI
+
+## Structure
+
+```
+lab2/
+├── prototype/
+│   ├── commun/
+│   │   ├── modeles/
+│   │   └── repositories/
+│   └── services/
+│       ├── administration/
+│       ├── logistique/
+│       └── magasin/
+├── production/
+├── tests/
+├── docs/
+└── sql/
+```
 
 ## Prérequis
 
-- Git
 - Docker et Docker Compose
-- Python 3.11 ou supérieur
+- Python 3.11
 
-## Technologies utilisées
+## Technologies
 
 - Python 3.11
-- Pytest
-- Pylint
+- FastAPI
+- PostgreSQL
 - Docker
-- GitHub Actions
-- Docker Hub
 
-## Choix techniques
+## Installation locale
 
-- __Python 3.11__: Choisi pour sa stabilité et son développement rapide d'applications
-- __Pytest__: Sélectionné pour sa simplicité d'utilisation
-- __Pylint__: Utilisé pour maintenir un code propre et conforme aux standards de Python
-- __Docker__: Implémenté pour assurer la portabilité de l'environnement de développement
-- __GitHub Actions__: Choisi pour son intégration native avec GitHub et sa facilité de configuration
-- __Docker Hub__: Utilisé comme registre public pour stocker l'image Docker
+```bash
+git clone https://github.com/Aicha0000/log430-lab0.git
+cd log430-lab0/lab2
+docker-compose up
+```
 
-## Image Docker
+## Interfaces
 
-L’image Docker est automatiquement construite et poussée sur Docker Hub à chaque mise à jour de la branche `main`.
+### Interface web
+- API: http://localhost:8000
+- Dashboard: http://localhost:8000/web
+- Documentation: http://localhost:8000/docs
 
-__Lien Docker Hub :__  
-[`aicha0000/log430-lab0`](https://hub.docker.com/repository/docker/aicha0000/log430-lab0)
+### Interfaces console
 
-## Développement local: Configuration de l'environnement
+```bash
+# Interface employé magasin
+docker-compose exec api python3 -c "
+import sys; sys.path.append('/app/prototype')
+from services.magasin.interface_console import main
+main()"
 
-1. Cloner le dépôt:
-git clone <https://github.com/Aicha0000/log430-lab0.git>
-cd log430-lab0
-2. Créer et activer un environnement virtuel:
-python -m venv venv
-source venv/bin/activate
-3. Installer les dépendances
-pip install -r requirements.txt
+# Interface gestionnaire 
+docker-compose exec api python3 -c "
+import sys; sys.path.append('/app/prototype')
+from services.administration.interface_gestionnaire import main
+main()"
 
-## Exécution des Tests
+# Interface centre logistique
+docker-compose exec api python3 -c "
+import sys; sys.path.append('/app/prototype')
+from services.logistique.main import main
+main()"
+```
 
-pytest
+## Tests
 
-## Exécution du Linter
+```bash
+# Tous les tests
+docker-compose exec api python3 -m pytest tests/ -v
 
-pylint app/ tests/
+# Tests par catégorie
+docker-compose exec api python3 -m pytest tests/test_unitaires.py -v
+docker-compose exec api python3 -m pytest tests/test_integration.py -v  
+docker-compose exec api python3 -m pytest tests/test_e2e.py -v
+```
 
-## Exécution de Docker
+## Configuration base de données
 
-docker run aicha0000/log430-lab0
+PostgreSQL avec variables d'environnement:
+```
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=lab2_db
+DB_USER=lab2_user
+DB_PASSWORD=lab2_password
+```
 
-## Pipeline CI/CD
+## API principales
 
-Ce laboratoire utilise Github Actions pour l'intégration et la livraison continues:
-À chaque push sur le main ou pull request:
+- GET /api/consolide - Rapport consolidé
+- GET /api/central - Stock central
+- GET /api/dashboard - Tableau de bord
+- PUT /api/produits/{id} - Modification produit
+- GET /api/alertes/faible-stock - Alertes stock
 
-- le code est récupéré
-- L'environnement Python est configuré
-- Les dépendances sont installées
-- Les vérifications de linting sont exécutées
-- Les tests unitaires sont exécutés
-- L'image Docker est construite et poussée vers Docker Hub (uniquement sur la branche main)
+## Documentation
+
+- Architecture: docs/rapport-arc42.md
+- Décisions: docs/adr/
+- Diagrammes: docs/uml/
 
 ## Auteur
 
