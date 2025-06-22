@@ -1,28 +1,30 @@
 ## Diagramme de deploiement
-```` mermaid 
+
+```mermaid
 graph TB
-    subgraph "Infrastructure de Déploiement"
-        subgraph "Maison Mère"
+    subgraph "Infrastructure de Deploiement"
+        subgraph "Maison Mere"
             postgres[(PostgreSQL Central)]
-            administration[administration]
-            web[web-minimal]
+            administration[Administration]
+            web[Web Minimal]
         end
         
-        subgraph "Les magasins"
+        subgraph "Les Magasins"
             subgraph "Magasin Type"
                 sqlite[(SQLite Local)]
-                magasin[magasin]
+                magasin[Magasin]
                 magasin --> sqlite
+            end
         end
 
         subgraph "Centre Logistique"
-            logistique[logistique]
+            logistique[Logistique]
         end
     end
  
-    %% Communication réseau
+    %% Communication reseau
     magasin -.-> administration : "REST + Webhooks"
     magasin -.-> logistique : "REST"
     logistique -.-> administration : "REST + Webhooks"
     administration --> postgres
-     ```` 
+``` 

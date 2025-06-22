@@ -1,6 +1,6 @@
-# Diagramme de Séquence - pour UC1 à UC6
+# Diagramme de Sequence - pour UC1 a UC6
 
-## UC1: Génération Rapport
+## UC1: Generation Rapport
 
 ```mermaid
 sequenceDiagram
@@ -19,7 +19,7 @@ sequenceDiagram
     IG-->>G: Rapport affiche
 ```
 
-## UC2: Consultation Stock et Demande Réapprovisionnement
+## UC2: Consultation Stock et Demande Reapprovisionnement
 
 ```mermaid
 sequenceDiagram
@@ -101,7 +101,7 @@ sequenceDiagram
     IG-->>G: "Produit modifie"
 ```
 
-## UC6: Traitement Réapprovisionnement
+## UC6: Traitement Reapprovisionnement
 
 ```mermaid
 sequenceDiagram
