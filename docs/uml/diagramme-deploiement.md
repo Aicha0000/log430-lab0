@@ -2,29 +2,25 @@
 
 ```mermaid
 graph TB
-    subgraph "Infrastructure de Deploiement"
-        subgraph "Maison Mere"
-            postgres[(PostgreSQL Central)]
-            administration[Administration]
-            web[Web Minimal]
-        end
-        
-        subgraph "Les Magasins"
-            subgraph "Magasin Type"
-                sqlite[(SQLite Local)]
-                magasin[Magasin]
-                magasin --> sqlite
-            end
-        end
+    subgraph MM["Maison Mere"]
+        postgres[(PostgreSQL Central)]
+        administration[Administration]
+        web[Web Minimal]
+    end
+    
+    subgraph MAG["Magasins"]
+        sqlite[(SQLite Local)]
+        magasin[Magasin Service]
+        magasin --> sqlite
+    end
 
-        subgraph "Centre Logistique"
-            logistique[Logistique]
-        end
+    subgraph LOG["Centre Logistique"]
+        logistique[Logistique Service]
     end
  
     %% Communication reseau
-    magasin -.-> administration : "REST + Webhooks"
-    magasin -.-> logistique : "REST"
-    logistique -.-> administration : "REST + Webhooks"
+    magasin -.-> administration
+    magasin -.-> logistique
+    logistique -.-> administration
     administration --> postgres
 ``` 
