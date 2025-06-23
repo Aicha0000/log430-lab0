@@ -28,10 +28,21 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Security(
 
 app = FastAPI(
     title="Lab 3 - API Multi-Magasins",
-    description="API RESTful pour système multi-magasins avec centre logistique et maison mère", 
+    description="API RESTful pour système multi-magasins avec centre logistique et maison mère. Authentification requise avec Bearer token.", 
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    openapi_tags=[
+        {"name": "System", "description": "Endpoints système et santé"},
+        {"name": "Interface", "description": "Interface web dashboard"},
+        {"name": "Rapports", "description": "UC1 - Rapports consolidés des ventes"},
+        {"name": "Stock Central", "description": "UC2 - Consultation du stock central"},
+        {"name": "Tableau de Bord", "description": "UC3 - Tableau de bord des performances"},
+        {"name": "Gestion Produits", "description": "UC4 - Gestion et mise à jour des produits"},
+        {"name": "Logistique", "description": "UC6 - Réapprovisionnement et logistique"},
+        {"name": "Alertes", "description": "UC7 - Système d'alertes de stock"},
+        {"name": "Magasins", "description": "Opérations des magasins et ventes"}
+    ]
 )
 
 from fastapi.openapi.docs import get_swagger_ui_html
