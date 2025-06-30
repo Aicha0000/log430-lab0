@@ -36,7 +36,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r "Lab 3/requirements.txt"
+        cd "./Lab 3"
+        pip install -r requirements.txt
     
     - name: Wait for PostgreSQL
       run: |
@@ -52,18 +53,19 @@ jobs:
     
     - name: Create mock services for CI
       run: |
-        mkdir -p "Lab 3/prototype/commun/repositories"
-        mkdir -p "Lab 3/prototype/services/administration"
+        cd "./Lab 3"
+        mkdir -p prototype/commun/repositories
+        mkdir -p prototype/services/administration
         
         # Create __init__.py files
-        touch "Lab 3/prototype/__init__.py"
-        touch "Lab 3/prototype/commun/__init__.py"
-        touch "Lab 3/prototype/commun/repositories/__init__.py"
-        touch "Lab 3/prototype/services/__init__.py"
-        touch "Lab 3/prototype/services/administration/__init__.py"
+        touch prototype/__init__.py
+        touch prototype/commun/__init__.py
+        touch prototype/commun/repositories/__init__.py
+        touch prototype/services/__init__.py
+        touch prototype/services/administration/__init__.py
         
         # Create mock instances
-        cat > "Lab 3/prototype/commun/repositories/instances.py" << 'EOF'
+        cat > prototype/commun/repositories/instances.py << 'EOF'
 from unittest.mock import Mock
 rapports_service = Mock()
 gestion_stocks = Mock() 
@@ -81,7 +83,7 @@ reappro_service.approuver_et_traiter.return_value = True
 EOF
         
         # Create mock tableau_bord
-        cat > "Lab 3/prototype/services/administration/tableau_bord.py" << 'EOF'
+        cat > prototype/services/administration/tableau_bord.py << 'EOF'
 from unittest.mock import Mock
 tableau_bord_service = Mock()
 tableau_bord_service.generer_tableau_bord.return_value = Mock(
