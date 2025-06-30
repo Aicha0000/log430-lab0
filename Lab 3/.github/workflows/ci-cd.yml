@@ -36,8 +36,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        cd "Lab 3"
-        pip install -r requirements.txt
+        pip install -r "Lab 3/requirements.txt"
     
     - name: Wait for PostgreSQL
       run: |
@@ -53,16 +52,18 @@ jobs:
     
     - name: Create mock services for CI
       run: |
-        cd "Lab 3"
-        mkdir -p prototype/commun/repositories
-        mkdir -p prototype/services/administration
-        cat > prototype/__init__.py << 'EOF'
-        EOF
-        cat > prototype/commun/__init__.py << 'EOF'
-        EOF
-        cat > prototype/commun/repositories/__init__.py << 'EOF'
-        EOF
-        cat > prototype/commun/repositories/instances.py << 'EOF'
+        mkdir -p "Lab 3/prototype/commun/repositories"
+        mkdir -p "Lab 3/prototype/services/administration"
+        
+        # Create __init__.py files
+        touch "Lab 3/prototype/__init__.py"
+        touch "Lab 3/prototype/commun/__init__.py"
+        touch "Lab 3/prototype/commun/repositories/__init__.py"
+        touch "Lab 3/prototype/services/__init__.py"
+        touch "Lab 3/prototype/services/administration/__init__.py"
+        
+        # Create mock instances
+        cat > "Lab 3/prototype/commun/repositories/instances.py" << 'EOF'
 from unittest.mock import Mock
 rapports_service = Mock()
 gestion_stocks = Mock() 
@@ -71,14 +72,16 @@ produits_service = Mock()
 rapports_service.generer_rapport_consolide.return_value = Mock(total_general=1000, ventes_par_magasin={}, produits_plus_vendus=[], periode="30 days")
 gestion_stocks.list_all.return_value = []
 gestion_stocks.get_stock.return_value = None
+gestion_stocks.stock_repo = Mock()
+gestion_stocks.stock_repo.get_all_produits.return_value = []
 produits_service.lister_produits.return_value = []
+produits_service.modifier_produit.return_value = True
 reappro_service.lister_demandes_en_attente.return_value = []
-        EOF
-        cat > prototype/services/__init__.py << 'EOF'
-        EOF
-        cat > prototype/services/administration/__init__.py << 'EOF'
-        EOF
-        cat > prototype/services/administration/tableau_bord.py << 'EOF'
+reappro_service.approuver_et_traiter.return_value = True
+EOF
+        
+        # Create mock tableau_bord
+        cat > "Lab 3/prototype/services/administration/tableau_bord.py" << 'EOF'
 from unittest.mock import Mock
 tableau_bord_service = Mock()
 tableau_bord_service.generer_tableau_bord.return_value = Mock(
@@ -88,7 +91,7 @@ tableau_bord_service.generer_tableau_bord.return_value = Mock(
     alertes_stock=[],
     tendances_hebdomadaires=[]
 )
-        EOF
+EOF
     
     - name: Start API server
       run: |
