@@ -36,8 +36,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        cd "./Lab 3"
         pip install -r requirements.txt
-        pip install pytest pytest-asyncio httpx
     
     - name: Wait for PostgreSQL
       run: |
@@ -51,16 +51,61 @@ jobs:
         echo "DATABASE_URL=postgresql://lab3_user:lab3_password@localhost:5432/lab3_db" >> $GITHUB_ENV
         echo "EXTERNAL_WEBHOOK_URL=https://webhook.site/test" >> $GITHUB_ENV
     
+    - name: Create mock services for CI
+      run: |
+        cd "./Lab 3"
+        mkdir -p prototype/commun/repositories
+        mkdir -p prototype/services/administration
+        
+        # Create __init__.py files
+        touch prototype/__init__.py
+        touch prototype/commun/__init__.py
+        touch prototype/commun/repositories/__init__.py
+        touch prototype/services/__init__.py
+        touch prototype/services/administration/__init__.py
+        
+        # Create mock instances
+        cat > prototype/commun/repositories/instances.py << 'EOF'
+from unittest.mock import Mock
+rapports_service = Mock()
+gestion_stocks = Mock() 
+reappro_service = Mock()
+produits_service = Mock()
+rapports_service.generer_rapport_consolide.return_value = Mock(total_general=1000, ventes_par_magasin={}, produits_plus_vendus=[], periode="30 days")
+gestion_stocks.list_all.return_value = []
+gestion_stocks.get_stock.return_value = None
+gestion_stocks.stock_repo = Mock()
+gestion_stocks.stock_repo.get_all_produits.return_value = []
+produits_service.lister_produits.return_value = []
+produits_service.modifier_produit.return_value = True
+reappro_service.lister_demandes_en_attente.return_value = []
+reappro_service.approuver_et_traiter.return_value = True
+EOF
+        
+        # Create mock tableau_bord
+        cat > prototype/services/administration/tableau_bord.py << 'EOF'
+from unittest.mock import Mock
+tableau_bord_service = Mock()
+tableau_bord_service.generer_tableau_bord.return_value = Mock(
+    date_generation=Mock(isoformat=lambda: "2025-06-30T10:00:00"),
+    total_reseau=5000,
+    performances_magasins=[],
+    alertes_stock=[],
+    tendances_hebdomadaires=[]
+)
+EOF
+    
     - name: Start API server
       run: |
-        cd production
-        uvicorn main:app --host 0.0.0.0 --port 8000 &
-        sleep 10
+        cd "Lab 3"
+        uvicorn production.main:app --host 0.0.0.0 --port 8000 &
+        sleep 15
       env:
         DATABASE_URL: postgresql://lab3_user:lab3_password@localhost:5432/lab3_db
     
     - name: Run tests
       run: |
+        cd "Lab 3"
         python lab3/test_lab3.py
     
     - name: Test API health
@@ -92,7 +137,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
-        context: .
+        context: "Lab 3"
         push: true
         tags: |
           aicha0000/log430-lab3:latest

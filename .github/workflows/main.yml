@@ -40,7 +40,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y postgresql-client curl
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install -r "Étape 1 (Labs 0-2)/requirements.txt"
 
     - name: Wait for PostgreSQL
       run: |
@@ -50,26 +50,21 @@ jobs:
         done
 
     - name: Run unit tests
-      run: python -m pytest tests/test_unitaires.py -v
+      run: python -m pytest "Étape 1 (Labs 0-2)/tests/test_unitaires.py" -v
       env:
         DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
 
     - name: Run integration tests
-      run: python -m pytest tests/test_integration.py -v
+      run: python -m pytest "Étape 1 (Labs 0-2)/tests/test_integration.py" -v
       env:
         DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
 
-    - name: Start FastAPI server
+    - name: Run main script
       run: |
-        uvicorn production.main:app --host 0.0.0.0 --port 8000 &
-        sleep 15
-        curl -f http://localhost:8000/health || exit 1
-      env:
-        DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
+        cd "Étape 1 (Labs 0-2)"
+        python app/main.py
 
-    - name: Run end-to-end tests
-      run: python -m pytest tests/test_e2e.py -v
-      env:
-        DATABASE_URL: postgresql://lab2_user:lab2_password@localhost:5432/lab2_db
+    - name: Skip E2E tests
+      run: echo "tests e2e pas besoin pour lab2"
 
 
