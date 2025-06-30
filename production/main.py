@@ -66,11 +66,11 @@ async def custom_swagger_ui_html():
     </html>
     """)
 
-# DTOs
+# DTOs avec validation pour eviter bad requests
 class ProduitUpdate(BaseModel):
-    name: str = Field(None, min_length=1, max_length=100)
-    price: float = Field(None, gt=0)
-    description: str = Field(None, max_length=500)
+    name: str = Field(None, min_length=1, max_length=100)  # nom doit etre present
+    price: float = Field(None, gt=0)  # prix positif seulement 
+    description: str = Field(None, max_length=500)  # limite description reasonable
 
 class VenteRequest(BaseModel):
     Id_produit: str
@@ -176,6 +176,7 @@ async def get_central_stock():
 async def get_product_stock(product_id: str):
     """Détails d'un produit spécifique"""
     product = gestion_stocks.get_stock(product_id)
+    # Check si le produit existe before returning data
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
@@ -235,7 +236,7 @@ async def get_all_products():
 
 @app.put("/api/produits/{product_id}", tags=["Gestion Produits"], dependencies=[Depends(get_current_user)])
 async def update_product(product_id: str, update_data: ProduitUpdate, background_tasks: BackgroundTasks):
-    """UC4 - Mise à jour d'un produit"""
+    """UC4 - Mise à jour d'un produit avec validation inputs"""
     success = produits_service.modifier_produit(
         product_id,
         update_data.name,
