@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from typing import Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import uvicorn
 import os
 from datetime import datetime
@@ -68,9 +68,9 @@ async def custom_swagger_ui_html():
 
 # DTOs
 class ProduitUpdate(BaseModel):
-    name: str = None
-    price: float = None
-    description: str = None
+    name: str = Field(None, min_length=1, max_length=100)
+    price: float = Field(None, gt=0)
+    description: str = Field(None, max_length=500)
 
 class VenteRequest(BaseModel):
     Id_produit: str
@@ -177,7 +177,7 @@ async def get_product_stock(product_id: str):
     """Détails d'un produit spécifique"""
     product = gestion_stocks.get_stock(product_id)
     if not product:
-        raise HTTPException(status_code=404, detail="Produit non trouvé")
+        raise HTTPException(status_code=404, detail="Product not found")
     
     return {
         "id": product.id,
