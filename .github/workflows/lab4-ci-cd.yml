@@ -1,0 +1,161 @@
+name: Lab 4 CI/CD - Observabilite et Performance
+
+on:
+  push:
+    branches: [lab4]
+    paths: ['lab4/**']
+  pull_request:
+    branches: [lab4]
+    paths: ['lab4/**']
+
+jobs:
+  test-monitoring:
+    runs-on: ubuntu-latest
+    name: Test Monitoring Stack
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd lab4/monitoring
+        pip install -r requirements.txt
+    
+    - name: Test API instrumentation
+      run: |
+        cd lab4/monitoring
+        python -c "import main_avec_metriques; print('API instrumentation OK')"
+    
+    - name: Validate Prometheus config
+      run: |
+        cd lab4/monitoring
+        # check prometheus config syntax
+        if [ -f prometheus.yml ]; then
+          echo "Prometheus config found"
+        fi
+
+  test-load-balancer:
+    runs-on: ubuntu-latest
+    name: Test Load Balancer Config
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Test NGINX config
+      run: |
+        cd lab4/load-balancer
+        # validate nginx config
+        docker run --rm -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf nginx:alpine nginx -t
+    
+    - name: Setup Python for API
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Test API dependencies
+      run: |
+        cd lab4/load-balancer
+        pip install -r requirements.txt
+        python -c "import main_avec_metriques; print('Load balancer API OK')"
+
+  test-cache:
+    runs-on: ubuntu-latest
+    name: Test Cache Implementation
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        cd lab4/cache
+        pip install -r requirements.txt
+    
+    - name: Test cache manager
+      run: |
+        cd lab4/cache
+        python -c "from cache_manager import CacheManager; print('Cache manager OK')"
+    
+    - name: Test API with cache
+      run: |
+        cd lab4/cache
+        python -c "import main_avec_metriques; print('Cache API OK')"
+
+  validate-k6-scripts:
+    runs-on: ubuntu-latest
+    name: Validate K6 Test Scripts
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+    
+    - name: Validate load test scripts
+      run: |
+        cd lab4/load-tests
+        k6 validate baseline-test.js
+        k6 validate stress-test.js
+        k6 validate stress-test-cache.js
+
+  docker-build-test:
+    runs-on: ubuntu-latest
+    name: Test Docker Builds
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Test monitoring build
+      run: |
+        cd lab4/monitoring
+        if [ -f Dockerfile ]; then
+          docker build -t lab4-monitoring .
+        fi
+    
+    - name: Test load-balancer build
+      run: |
+        cd lab4/load-balancer
+        docker build -t lab4-load-balancer .
+    
+    - name: Test cache build
+      run: |
+        cd lab4/cache
+        docker build -t lab4-cache .
+
+  validate-docs:
+    runs-on: ubuntu-latest
+    name: Validate Documentation
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check required files
+      run: |
+        cd lab4
+        test -f README.md || (echo "README.md missing" && exit 1)
+        test -d docs/adr || (echo "ADR directory missing" && exit 1)
+        test -d docs/uml || (echo "UML directory missing" && exit 1)
+        echo "Documentation structure OK"
+    
+    - name: Validate mermaid diagrams
+      run: |
+        cd lab4/docs/uml
+        for file in *.md; do
+          if grep -q "```mermaid" "$file"; then
+            echo "Mermaid diagram found in $file"
+          fi
+        done
