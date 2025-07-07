@@ -1,0 +1,100 @@
+{
+  "info": {
+    "name": "Lab 3 - API Multi-Magasins",
+    "description": "Collection Postman pour tester l'API Lab 3",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "lab3-static-token",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "UC1 - Rapport Consolidé",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/consolide?days=30",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "consolide"],
+          "query": [
+            {
+              "key": "days",
+              "value": "30"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "UC2 - Stock Central",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/central",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "central"]
+        }
+      }
+    },
+    {
+      "name": "UC3 - Tableau de Bord",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/dashboard",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "dashboard"]
+        }
+      }
+    },
+    {
+      "name": "UC4 - Mise à jour Produit",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Coca-Cola Premium\",\n  \"price\": 2.99,\n  \"description\": \"Nouvelle formule premium\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/produits/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "produits", "1"]
+        }
+      }
+    },
+    {
+      "name": "UC7 - Alertes Stock",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/alertes/faible-stock",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "alertes", "faible-stock"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    }
+  ]
+}
