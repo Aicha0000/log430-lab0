@@ -1,0 +1,278 @@
+services:
+  kong-database:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: kong
+      POSTGRES_PASSWORD: kong
+      POSTGRES_DB: kong
+    volumes:
+      - kong_data:/var/lib/postgresql/data
+    networks:
+      - kong-net
+
+  kong-migrations:
+    image: kong:3.4
+    command: kong migrations bootstrap
+    depends_on:
+      - kong-database
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_PG_DATABASE: kong
+    networks:
+      - kong-net
+
+  kong:
+    image: kong:3.4
+    depends_on:
+      - kong-database
+      - kong-migrations
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_USER: kong
+      KONG_PG_PASSWORD: kong
+      KONG_PG_DATABASE: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    networks:
+      - kong-net
+      - microservices-net
+
+  products-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: products
+      POSTGRES_PASSWORD: products
+      POSTGRES_DB: products
+    volumes:
+      - products_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  products-service:
+    build: ./microservices/products-service
+    ports:
+      - "8002:8001"
+    depends_on:
+      - products-db
+    environment:
+      DATABASE_URL: postgresql://products:products@products-db:5432/products
+    networks:
+      - microservices-net
+
+  inventory-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory
+      POSTGRES_DB: inventory
+    volumes:
+      - inventory_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  inventory-service:
+    build: ./microservices/inventory-service
+    ports:
+      - "8003:8002"
+    depends_on:
+      - inventory-db
+    environment:
+      DATABASE_URL: postgresql://inventory:inventory@inventory-db:5432/inventory
+    networks:
+      - microservices-net
+
+  reports-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: reports
+      POSTGRES_PASSWORD: reports
+      POSTGRES_DB: reports
+    volumes:
+      - reports_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  reports-service:
+    build: ./microservices/reports-service
+    ports:
+      - "8004:8003"
+    depends_on:
+      - reports-db
+    environment:
+      DATABASE_URL: postgresql://reports:reports@reports-db:5432/reports
+    networks:
+      - microservices-net
+
+  sales-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: sales
+      POSTGRES_PASSWORD: sales
+      POSTGRES_DB: sales
+    volumes:
+      - sales_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  sales-service:
+    build: ./microservices/sales-service
+    ports:
+      - "8005:8004"
+    depends_on:
+      - sales-db
+    environment:
+      DATABASE_URL: postgresql://sales:sales@sales-db:5432/sales
+    networks:
+      - microservices-net
+
+  customers-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: customers
+      POSTGRES_PASSWORD: customers
+      POSTGRES_DB: customers
+    volumes:
+      - customers_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  customer-service:
+    build: ./microservices/customer-service
+    ports:
+      - "8006:8005"
+    depends_on:
+      - customers-db
+    environment:
+      DATABASE_URL: postgresql://customers:customers@customers-db:5432/customers
+    networks:
+      - microservices-net
+
+  orders-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: orders
+      POSTGRES_DB: orders
+    volumes:
+      - orders_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  order-service:
+    build: ./microservices/order-service
+    ports:
+      - "8007:8006"
+    depends_on:
+      - orders-db
+    environment:
+      DATABASE_URL: postgresql://orders:orders@orders-db:5432/orders
+    networks:
+      - microservices-net
+
+  cart-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: cart
+      POSTGRES_PASSWORD: cart
+      POSTGRES_DB: cart
+    volumes:
+      - cart_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  cart-service:
+    build: ./microservices/cart-service
+    ports:
+      - "8008:8007"
+    depends_on:
+      - cart-db
+    environment:
+      DATABASE_URL: postgresql://cart:cart@cart-db:5432/cart
+    networks:
+      - microservices-net
+
+  cart-service-2:
+    build: ./microservices/cart-service
+    depends_on:
+      - cart-db
+    environment:
+      DATABASE_URL: postgresql://cart:cart@cart-db:5432/cart
+    networks:
+      - microservices-net
+
+  cart-service-3:
+    build: ./microservices/cart-service
+    depends_on:
+      - cart-db
+    environment:
+      DATABASE_URL: postgresql://cart:cart@cart-db:5432/cart
+    networks:
+      - microservices-net
+
+  checkout-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: checkout
+      POSTGRES_PASSWORD: checkout
+      POSTGRES_DB: checkout
+    volumes:
+      - checkout_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  checkout-service:
+    build: ./microservices/checkout-service
+    ports:
+      - "8009:8008"
+    depends_on:
+      - checkout-db
+    environment:
+      DATABASE_URL: postgresql://checkout:checkout@checkout-db:5432/checkout
+    networks:
+      - microservices-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "8010:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - microservices-net
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "8011:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./monitoring/grafana:/etc/grafana/provisioning
+    networks:
+      - microservices-net
+
+volumes:
+  kong_data:
+  products_data:
+  inventory_data:
+  reports_data:
+  sales_data:
+  customers_data:
+  orders_data:
+  cart_data:
+  checkout_data:
+
+networks:
+  kong-net:
+  microservices-net:

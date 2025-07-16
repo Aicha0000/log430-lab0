@@ -1,0 +1,60 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Lab 4 - 4 Golden Signals",
+    "tags": ["lab4", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Latence - Temps de Reponse",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, api_request_duration_seconds_bucket)",
+            "legendFormat": "P95"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Trafic - Requetes par Seconde",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(api_requests_total[1m])",
+            "legendFormat": "RPS"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Erreurs - Taux d'Erreur",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(api_requests_total{status=~\"4..|5..\"}[1m]) / rate(api_requests_total[1m]) * 100",
+            "legendFormat": "Error Rate %"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "Saturation - Requetes Actives",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "api_active_requests",
+            "legendFormat": "Active Requests"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      }
+    ],
+    "time": {"from": "now-1h", "to": "now"},
+    "refresh": "5s"
+  }
+}

@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://lab2_user:lab2_password@db:5432/lab2_db
+    depends_on:
+      - db
+    networks:
+      - lab4-net
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: lab2_db
+      POSTGRES_USER: lab2_user
+      POSTGRES_PASSWORD: lab2_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../Étape\ 2\ \(Lab\ 3\)/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - lab4-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - lab4-net
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    networks:
+      - lab4-net
+
+volumes:
+  postgres_data:
+  grafana_data:
+
+networks:
+  lab4-net:
+    driver: bridge

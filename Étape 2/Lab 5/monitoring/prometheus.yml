@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'products-service'
+    static_configs:
+      - targets: ['products-service:8001']
+    metrics_path: '/metrics'
+
+  - job_name: 'inventory-service'
+    static_configs:
+      - targets: ['inventory-service:8002']
+    metrics_path: '/metrics'
+
+  - job_name: 'reports-service'
+    static_configs:
+      - targets: ['reports-service:8003']
+    metrics_path: '/metrics'
+
+  - job_name: 'sales-service'
+    static_configs:
+      - targets: ['sales-service:8004']
+    metrics_path: '/metrics'
+
+  - job_name: 'customer-service'
+    static_configs:
+      - targets: ['customer-service:8005']
+    metrics_path: '/metrics'
+
+  - job_name: 'order-service'
+    static_configs:
+      - targets: ['order-service:8006']
+    metrics_path: '/metrics'
+
+  - job_name: 'cart-service'
+    static_configs:
+      - targets: ['cart-service:8007']
+    metrics_path: '/metrics'
+
+  - job_name: 'checkout-service'
+    static_configs:
+      - targets: ['checkout-service:8008']
+    metrics_path: '/metrics'
