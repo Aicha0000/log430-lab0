@@ -106,12 +106,6 @@ async def create_order(order_data: OrderCreate):
     orders_db[order_counter] = order
     order_counter += 1
     
-    try:
-        requests.post(f"http://notification-service:8008/notifications/order-created", 
-                     json={"order_id": order["id"], "customer_id": order["customer_id"]}, 
-                     timeout=3)
-    except:
-        pass
     
     return {"order": order}
 
@@ -135,12 +129,6 @@ async def update_order_status(order_id: int, status: OrderStatus):
     orders_db[order_id]["status"] = status
     orders_db[order_id]["updated_at"] = datetime.now()
     
-    try:
-        requests.post(f"http://notification-service:8008/notifications/order-updated", 
-                     json={"order_id": order_id, "status": status}, 
-                     timeout=3)
-    except:
-        pass
     
     return {"message": "Order status updated", "order": orders_db[order_id]}
 
@@ -156,12 +144,6 @@ async def checkout_order(order_id: int):
     orders_db[order_id]["status"] = OrderStatus.CONFIRMED
     orders_db[order_id]["updated_at"] = datetime.now()
     
-    try:
-        requests.post(f"http://notification-service:8008/notifications/order-confirmed", 
-                     json={"order_id": order_id, "customer_id": order["customer_id"]}, 
-                     timeout=3)
-    except:
-        pass
     
     return {"message": "Order confirmed", "order": orders_db[order_id]}
 

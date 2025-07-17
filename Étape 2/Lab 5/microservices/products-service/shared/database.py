@@ -61,7 +61,6 @@ def setup_tables(db_config):
         last_name VARCHAR(100) NOT NULL,
         phone VARCHAR(20),
         address TEXT,
-        loyalty_points INTEGER DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """
@@ -108,25 +107,22 @@ def setup_tables(db_config):
     );
     """
     
-    reviews_sql = """
-    CREATE TABLE IF NOT EXISTS reviews (
+    cart_sql = """
+    CREATE TABLE IF NOT EXISTS cart_items (
         id SERIAL PRIMARY KEY,
+        user_id VARCHAR(100) NOT NULL,
         product_id VARCHAR(100) NOT NULL,
-        customer_id INTEGER NOT NULL,
-        rating INTEGER NOT NULL,
-        comment TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        quantity INTEGER NOT NULL,
+        added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """
     
-    notifications_sql = """
-    CREATE TABLE IF NOT EXISTS notifications (
+    checkout_sql = """
+    CREATE TABLE IF NOT EXISTS checkout_sessions (
         id SERIAL PRIMARY KEY,
-        customer_id INTEGER NOT NULL,
-        type VARCHAR(50) NOT NULL,
-        title VARCHAR(255) NOT NULL,
-        message TEXT NOT NULL,
-        read BOOLEAN DEFAULT FALSE,
+        user_id VARCHAR(100) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        total_amount DECIMAL(10,2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """
@@ -135,7 +131,7 @@ def setup_tables(db_config):
     cursor = conn.cursor()
     
     tables = [products_sql, customers_sql, orders_sql, inventory_sql, 
-              sales_sql, reports_sql, reviews_sql, notifications_sql]
+              sales_sql, reports_sql, cart_sql, checkout_sql]
     
     for table_sql in tables:
         cursor.execute(table_sql)

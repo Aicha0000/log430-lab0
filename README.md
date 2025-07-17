@@ -1,39 +1,43 @@
 # LOG430 - Projet Multi-Magasins
 
-## Structure organisée
+## Structure du projet
 
 ### Étape 1 (Labs 0-2)
-Contient tous les éléments des premiers labs déjà remis au professeur:
+Éléments des premiers labs déjà remis:
 - Documentation d'architecture (ADR, ARC42)
 - Diagrammes UML 
 - Prototypes et services métier
 - Tests unitaires et d'intégration
 - Base de données et modèles
 
-### Lab 3 
-Contient uniquement les éléments spécifiques au Lab 3:
-- Application FastAPI de production
-- Tests de validation Lab 3
+### Étape 2 (Labs 3-5)
+
+#### Lab 3 
+Application FastAPI de production avec:
+- Tests automatisés
 - Configuration Docker
-- Documentation finale
+- Validation des requirements
 
-## Lab 3 - Tests automatisés
+#### Lab 4
+Observabilité, load balancing et cache:
+- Monitoring Prometheus/Grafana
+- Load balancer NGINX
+- Cache Redis distribué
+- Tests de performance
 
-Pour tester tous les requirements Lab 3:
+#### Lab 5
+Architecture microservices avec API Gateway:
+- 8 microservices indépendants
+- Kong API Gateway
+- Load balancing via gateway
+- Observabilité comparative
+
+## Démarrage Lab 5
 
 ```bash
-cd "Lab 3"
-python3 -m venv venv
-source venv/bin/activate  
-pip install requests
-python lab3/test_lab3.py
-```
-
-## Démarrage
-
-```bash
-cd "Lab 3"
+cd "Étape 2/Lab 5"
 docker-compose up -d
+./setup-kong.sh
 ```
 
-Accès: http://localhost:8000/docs
+Accès gateway: http://localhost:8000
