@@ -272,4 +272,4 @@ L'observabilité distribuée maintient la visibilité opérationnelle essentiell
 Cette transformation architecturale constitue un investissement stratégique pour l'avenir, créant les fondations techniques nécessaires pour supporter la croissance e-commerce tout en maintenant l'excellence opérationnelle du commerce traditionnel. Les défis identifiés, notamment autour de la cohérence transactionnelle et de la résilience, représentent les prochaines étapes naturelles d'évolution plutôt que des limitations fondamentales de l'approche microservices adoptée.
 
 ## 13. UML
-inclure mes diagrammes dans cette sections
+diagrammes sous /docs/uml

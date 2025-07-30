@@ -74,13 +74,11 @@ class PanierDatabase:
         existing = cursor.fetchone()
         
         if existing:
-            # Met à jour la quantité
             cursor.execute(
                 "UPDATE panier_items SET quantity = quantity + %s WHERE id = %s",
                 (quantity, existing['id'])
             )
         else:
-            # Ajoute un nouvel item
             cursor.execute(
                 "INSERT INTO panier_items (customer_id, product_id, nom_produit, quantity, prix_unitaire) VALUES (%s, %s, %s, %s, %s)",
                 (customer_id, product_id, nom_produit, quantity, prix_unitaire)

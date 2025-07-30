@@ -1,11 +1,9 @@
-import sys
 import os
 import time
 import logging
 from typing import List, Optional
-
-sys.path.append('/app/shared')
-from database import DatabaseConfig, BaseRepository, setup_tables
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, HTTPException
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
@@ -22,50 +20,92 @@ product_latency = Histogram('product_request_latency_seconds', 'Product request 
 
 class ProductService:
     def __init__(self):
-        self.db_config = DatabaseConfig()
-        self.repo = BaseRepository(self.db_config)
+        self.db_url = os.getenv("DATABASE_URL", "postgresql://products:products@products-db:5432/products")
         self.init_db()
     
+    def get_connection(self):
+        return psycopg2.connect(self.db_url, cursor_factory=RealDictCursor)
+    
+    def execute_query(self, query: str, params=None):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        
+        if cursor.description:
+            result = cursor.fetchall()
+            cursor.close()
+            conn.close()
+            return [dict(row) for row in result]
+        else:
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return None
+    
+    def execute_one(self, query: str, params=None):
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, params)
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return dict(result) if result else None
+    
     def init_db(self):
-        setup_tables(self.db_config)
-        existing = self.repo.execute_query("SELECT COUNT(*) as count FROM products")
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS products (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                description TEXT,
+                price DECIMAL(10,2) NOT NULL,
+                category VARCHAR(100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        existing = self.execute_query("SELECT COUNT(*) as count FROM products")
         if existing[0]['count'] == 0:
-            self.repo.execute_query(
+            self.execute_query(
                 "INSERT INTO products (name, description, price, category) VALUES (%s, %s, %s, %s)",
                 ("Coke", "355ml can", 2.99, "Drinks")
             )
-            self.repo.execute_query(
+            self.execute_query(
                 "INSERT INTO products (name, description, price, category) VALUES (%s, %s, %s, %s)",
                 ("Sprite", "355ml can", 2.79, "Drinks")
             )
-            self.repo.execute_query(
+            self.execute_query(
                 "INSERT INTO products (name, description, price, category) VALUES (%s, %s, %s, %s)",
                 ("Apple Juice", "250ml bottle", 3.49, "Drinks")
             )
-            self.repo.execute_query(
+            self.execute_query(
                 "INSERT INTO products (name, description, price, category) VALUES (%s, %s, %s, %s)",
                 ("Chocolate Milk", "500ml carton", 4.25, "Drinks")
             )
-            self.repo.execute_query(
+            self.execute_query(
                 "INSERT INTO products (name, description, price, category) VALUES (%s, %s, %s, %s)",
                 ("Cafe", "355ml cup", 5.99, "Drinks")
             )
     
     def get_all_products(self):
-        return self.repo.execute_query("SELECT * FROM products ORDER BY id")
+        return self.execute_query("SELECT * FROM products ORDER BY id")
     
     def get_product_by_id(self, product_id: str):
-        result = self.repo.execute_one("SELECT * FROM products WHERE id = %s", (product_id,))
+        result = self.execute_one("SELECT * FROM products WHERE id = %s", (product_id,))
         return result
     
     def update_product(self, product_id: str, data: dict):
         if 'name' in data:
-            self.repo.execute_query(
+            self.execute_query(
                 "UPDATE products SET name = %s WHERE id = %s",
                 (data['name'], product_id)
             )
         if 'price' in data:
-            self.repo.execute_query(
+            self.execute_query(
                 "UPDATE products SET price = %s WHERE id = %s",
                 (data['price'], product_id)
             )
@@ -83,7 +123,7 @@ async def product_metrics_middleware(request, call_next):
 
 @app.get("/health")
 async def health():
-    # Simple health check pour les produits
+    # health check pour les produits
     return {"status": "healthy", "service": "produits"}
 
 @app.get("/metrics")
